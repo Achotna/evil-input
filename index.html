@@ -3,44 +3,183 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>my evil input</title>
+<title>go for a swim</title>
 <style>
   /* Everything you make goes inside #stage: exactly 800 × 400 pixels. The gallery shows
      this box (shrunk to fit), so anything outside it won't be seen. */
   html, body { margin: 0; background: #292b47; color: #eceae3; font: 16px/1.5 ui-monospace, Menlo, Consolas, monospace; }
+
   #stage {
     width: 800px; height: 400px; overflow: hidden; position: relative;
     display: grid; place-items: center; text-align: center;
-    background: #23243d;
+    background: #000;
+    transition: background 1.6s cubic-bezier(.4, 0, .2, 1);
   }
 
-  /* ---- the example below: delete it and build your own ---- */
-  .vol { font-size: 64px; margin: 0; }
-  button { font: inherit; color: inherit; background: #3f4168; border: 0; border-radius: 6px; padding: .6rem 1.2rem; cursor: pointer; }
-  .hint { color: #8d8aa6; font-size: 14px; }
+  /* ---- the ocean ---- */
+  #stage.ocean {
+    background:
+      radial-gradient(140% 115% at 50% -20%, #4bb6e8 0%, #1a8ac9 28%, #0d6199 54%, #074570 78%, #022741 100%);
+  }
+
+  #rays, #fishLayer, #bubbles {
+    position: absolute; inset: 0; pointer-events: none;
+    opacity: 0; transition: opacity 2s ease .2s;
+  }
+  #stage.ocean #rays, #stage.ocean #fishLayer, #stage.ocean #bubbles { opacity: 1; }
+
+  /* soft sunbeams drifting down into the water */
+  #rays {
+    background:
+      linear-gradient(102deg, transparent 8%, rgba(190, 236, 255, .10) 14%, transparent 20%),
+      linear-gradient(96deg,  transparent 32%, rgba(190, 236, 255, .07) 39%, transparent 46%),
+      linear-gradient(108deg, transparent 62%, rgba(190, 236, 255, .09) 69%, transparent 76%),
+      linear-gradient(92deg,  transparent 86%, rgba(190, 236, 255, .06) 92%, transparent 97%);
+    animation: drift 11s ease-in-out infinite alternate;
+    mix-blend-mode: screen;
+  }
+  @keyframes drift {
+    from { transform: translateX(-18px) scaleY(1); opacity: .55; }
+    to   { transform: translateX(18px)  scaleY(1.08); opacity: 1; }
+  }
+
+  /* ---- fish ---- */
+  .fish {
+    position: absolute; left: 0; top: var(--y);
+    font-size: var(--size); line-height: 1;
+    color: var(--c);
+    text-shadow: 0 0 14px rgba(120, 220, 255, .45);
+    will-change: transform;
+  }
+  .fish .bob { display: inline-block; animation: bob var(--bob) ease-in-out infinite alternate; }
+  .fish .glyph {
+    display: inline-block;
+    font-family: "Segoe UI Historic", "Segoe UI Symbol", "Noto Sans Egyptian Hieroglyphs", "Segoe UI", serif;
+  }
+  .fish.left .glyph { transform: scaleX(-1); }
+
+  .fish.right { animation: swimR var(--dur) linear infinite; animation-delay: var(--delay); }
+  .fish.left  { animation: swimL var(--dur) linear infinite; animation-delay: var(--delay); }
+
+  @keyframes swimR { from { transform: translateX(-110px); } to { transform: translateX(900px); } }
+  @keyframes swimL { from { transform: translateX(900px); }  to { transform: translateX(-110px); } }
+
+  @keyframes bob {
+    from { transform: translateY(-7px) rotate(-4deg); }
+    to   { transform: translateY(7px)  rotate(4deg); }
+  }
+
+  /* ---- bubbles ---- */
+  .bubble {
+    position: absolute; bottom: -30px; left: var(--x);
+    width: var(--r); height: var(--r); border-radius: 50%;
+    border: 1px solid rgba(190, 236, 255, .55);
+    background: radial-gradient(circle at 32% 30%, rgba(210, 244, 255, .65), rgba(120, 200, 240, .06) 60%, transparent 70%);
+    animation: rise var(--dur) linear infinite;
+    animation-delay: var(--delay);
+  }
+  @keyframes rise {
+    0%   { transform: translate(0, 0) scale(.9); opacity: 0; }
+    10%  { opacity: .8; }
+    60%  { transform: translate(var(--wobble), -260px) scale(1); }
+    100% { transform: translate(calc(var(--wobble) * -1), -460px) scale(1.1); opacity: 0; }
+  }
+
+  /* ---- the button ---- */
+  #dive {
+    position: relative; z-index: 2;
+    font: inherit; font-size: 18px; letter-spacing: .04em;
+    color: #f2fbff;
+    background: linear-gradient(#2f96e0, #1477c4);
+    border: 1px solid rgba(200, 240, 255, .45);
+    border-radius: 999px;
+    padding: .85rem 2.2rem;
+    cursor: pointer;
+    box-shadow: 0 0 0 0 rgba(70, 190, 255, .55), 0 10px 26px rgba(0, 120, 210, .35);
+    transition: transform .18s ease, box-shadow .3s ease, opacity .8s ease, background .3s ease;
+    animation: glow 2.8s ease-in-out infinite;
+  }
+  #dive:hover { transform: translateY(-2px); background: linear-gradient(#48a9ea, #1a86d6); }
+  #dive:active { transform: translateY(1px) scale(.98); }
+
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(70, 190, 255, .45), 0 10px 26px rgba(0, 120, 210, .35); }
+    50%      { box-shadow: 0 0 0 12px rgba(70, 190, 255, 0), 0 10px 26px rgba(0, 120, 210, .35); }
+  }
+
+  #stage.ocean #dive {
+    opacity: 0; pointer-events: none;
+    transform: translateY(14px) scale(.92);
+    animation: none;
+  }
 </style>
 </head>
 <body>
 <div id="stage">
-  <!-- example evil input: volume you have to pump up by hand, and it leaks back down -->
-  <div>
-    <p class="vol"><span id="vol">0</span>%</p>
-    <button id="pump">pump volume</button>
-    <p class="hint">it leaks. keep pumping.</p>
-  </div>
+  <div id="rays"></div>
+  <div id="fishLayer" aria-hidden="true"></div>
+  <div id="bubbles" aria-hidden="true"></div>
+  <button id="dive" type="button">go for a swim</button>
 </div>
 <script>
-  // the example: delete this too
-  let volume = 0;
-  const out = document.getElementById('vol');
-  document.getElementById('pump').addEventListener('click', () => {
-    volume = Math.min(100, volume + 7);
-    out.textContent = Math.round(volume);
-  });
-  setInterval(() => {
-    volume = Math.max(0, volume - 1);
-    out.textContent = Math.round(volume);
-  }, 120);
+  const stage = document.getElementById('stage');
+  const fishLayer = document.getElementById('fishLayer');
+  const bubbleLayer = document.getElementById('bubbles');
+
+  const GLYPHS = ['\u{1319D}', '\u{1319F}', '\u{1319E}', '\u{1319F}', '\u{1319D}'];
+  const COLORS = ['#7fd7ff', '#9fe8ff', '#4fb8e8', '#b9f0ff', '#6cc7f2', '#d6f6ff'];
+
+  const rand = (min, max) => min + Math.random() * (max - min);
+
+  function addFish(count) {
+    const bands = 9;                     // spread fish over the water instead of clumping
+    for (let i = 0; i < count; i++) {
+      const goingLeft = Math.random() < 0.5;
+      const size = rand(20, 54);
+      const depth = size / 54;           // bigger fish read as closer
+      const dur = rand(11, 24) * (1.25 - depth * 0.5);
+
+      const fish = document.createElement('div');
+      fish.className = 'fish ' + (goingLeft ? 'left' : 'right');
+      fish.style.setProperty('--y', (4 + (i % bands) * 9 + rand(-3, 3)).toFixed(1) + '%');
+      fish.style.setProperty('--size', size.toFixed(0) + 'px');
+      fish.style.setProperty('--c', COLORS[i % COLORS.length]);
+      fish.style.setProperty('--dur', dur.toFixed(1) + 's');
+      fish.style.setProperty('--bob', rand(2.4, 4.6).toFixed(1) + 's');
+      fish.style.setProperty('--delay', (-Math.random() * dur).toFixed(1) + 's');
+      fish.style.opacity = (0.35 + depth * 0.65).toFixed(2);
+
+      const bob = document.createElement('div');
+      bob.className = 'bob';
+
+      const glyph = document.createElement('span');
+      glyph.className = 'glyph';
+      glyph.textContent = GLYPHS[i % GLYPHS.length];
+
+      bob.appendChild(glyph);
+      fish.appendChild(bob);
+      fishLayer.appendChild(fish);
+    }
+  }
+
+  function addBubbles(count) {
+    for (let i = 0; i < count; i++) {
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.style.setProperty('--x', rand(2, 98).toFixed(1) + '%');
+      bubble.style.setProperty('--r', rand(3, 11).toFixed(0) + 'px');
+      bubble.style.setProperty('--dur', rand(7, 16).toFixed(1) + 's');
+      bubble.style.setProperty('--delay', (-Math.random() * 16).toFixed(1) + 's');
+      bubble.style.setProperty('--wobble', rand(10, 34).toFixed(0) + 'px');
+      bubbleLayer.appendChild(bubble);
+    }
+  }
+
+  document.getElementById('dive').addEventListener('click', () => {
+    stage.classList.add('ocean');
+    // let the water settle for a moment before the fish swim in
+    setTimeout(() => { addFish(16); addBubbles(18); }, 650);
+  }, { once: true });
 </script>
 </body>
 </html>
