@@ -1,10 +1,10 @@
-# <your project's name>
+# <Aquarium>
 
 <!-- This README is the front door of your project: the gallery shows its first lines. -->
 
 ## what it is
 
-<one or two sentences: what is your evil input?>
+Aquarium with fishes just for fun
 
 ## what input it collects
 

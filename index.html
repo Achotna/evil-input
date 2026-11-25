@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>go for a swim</title>
+<title>dive in</title>
 <style>
   /* Everything you make goes inside #stage: exactly 800 × 400 pixels. The gallery shows
      this box (shrunk to fit), so anything outside it won't be seen. */
@@ -43,30 +43,36 @@
     to   { transform: translateX(18px)  scaleY(1.08); opacity: 1; }
   }
 
-  /* ---- fish ---- */
+  /* ---- kaomoji fish ---- */
   .fish {
-    position: absolute; left: 0; top: var(--y);
-    font-size: var(--size); line-height: 1;
+    position: absolute; left: 0; top: 0;
+    font-size: var(--size); line-height: 1; white-space: pre;
     color: var(--c);
-    text-shadow: 0 0 14px rgba(120, 220, 255, .45);
+    text-shadow: 0 0 12px rgba(140, 225, 255, .45);
     will-change: transform;
+    transform-origin: 50% 50%;
   }
-  .fish .bob { display: inline-block; animation: bob var(--bob) ease-in-out infinite alternate; }
   .fish .glyph {
     display: inline-block;
-    font-family: "Segoe UI Historic", "Segoe UI Symbol", "Noto Sans Egyptian Hieroglyphs", "Segoe UI", serif;
+    font-family: ui-monospace, "Cascadia Mono", Consolas, "MS Gothic", monospace;
+    letter-spacing: -0.02em;
   }
-  .fish.left .glyph { transform: scaleX(-1); }
 
-  .fish.right { animation: swimR var(--dur) linear infinite; animation-delay: var(--delay); }
-  .fish.left  { animation: swimL var(--dur) linear infinite; animation-delay: var(--delay); }
-
-  @keyframes swimR { from { transform: translateX(-110px); } to { transform: translateX(900px); } }
-  @keyframes swimL { from { transform: translateX(900px); }  to { transform: translateX(-110px); } }
-
-  @keyframes bob {
-    from { transform: translateY(-7px) rotate(-4deg); }
-    to   { transform: translateY(7px)  rotate(4deg); }
+  /* air bubbles puffed out of a fish's mouth */
+  .puff {
+    position: absolute; left: 0; top: 0;
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: var(--size); line-height: 1;
+    color: rgba(224, 247, 255, .92);
+    text-shadow: 0 0 8px rgba(150, 230, 255, .55);
+    pointer-events: none;
+    will-change: transform, opacity;
+    animation: puffUp var(--dur) ease-out forwards;
+  }
+  @keyframes puffUp {
+    from { transform: translate(var(--x), var(--y)) scale(.5); opacity: 0; }
+    20%  { opacity: .9; }
+    to   { transform: translate(calc(var(--x) + var(--dx)), calc(var(--y) - 110px)) scale(1.15); opacity: 0; }
   }
 
   /* ---- bubbles ---- */
@@ -85,32 +91,94 @@
     100% { transform: translate(calc(var(--wobble) * -1), -460px) scale(1.1); opacity: 0; }
   }
 
-  /* ---- the button ---- */
-  #dive {
+  /* ---- the button: a page torn out of a notebook ---- */
+  .scene {
     position: relative; z-index: 2;
-    font: inherit; font-size: 18px; letter-spacing: .04em;
-    color: #f2fbff;
-    background: linear-gradient(#2f96e0, #1477c4);
-    border: 1px solid rgba(200, 240, 255, .45);
-    border-radius: 999px;
-    padding: .85rem 2.2rem;
+    display: grid; gap: 22px; place-items: center;
+    transition: opacity .9s ease, transform .9s cubic-bezier(.4, 0, .2, 1);
+  }
+
+  .tagline {
+    margin: 0;
+    font-family: "Segoe Script", "Bradley Hand", "Comic Sans MS", cursive;
+    font-size: 15px; color: #7c84a8;
+    transform: rotate(-1.2deg);
+  }
+
+  #dive {
+    position: relative;
+    padding: 18px 44px 24px 46px;
+    border: 1px solid #e6ddc4;
+    border-radius: 3px;
     cursor: pointer;
-    box-shadow: 0 0 0 0 rgba(70, 190, 255, .55), 0 10px 26px rgba(0, 120, 210, .35);
-    transition: transform .18s ease, box-shadow .3s ease, opacity .8s ease, background .3s ease;
-    animation: glow 2.8s ease-in-out infinite;
+    font-family: "Segoe Script", "Bradley Hand", "Comic Sans MS", cursive;
+    font-size: 26px; line-height: 1;
+    color: #27456f;
+    background-color: #fbf6e7;
+    background-image:
+      repeating-linear-gradient(to bottom, transparent 0 27px, rgba(96, 150, 205, .35) 27px 28px);
+    background-position: 0 14px;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, .9) inset,
+      0 16px 32px rgba(0, 0, 0, .55),
+      0 3px 6px rgba(0, 0, 0, .45);
+    transform: rotate(-2deg);
+    transition: transform .25s cubic-bezier(.2, .9, .3, 1.4), box-shadow .3s ease,
+                background-color .3s ease, opacity .9s ease;
   }
-  #dive:hover { transform: translateY(-2px); background: linear-gradient(#48a9ea, #1a86d6); }
-  #dive:active { transform: translateY(1px) scale(.98); }
 
-  @keyframes glow {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(70, 190, 255, .45), 0 10px 26px rgba(0, 120, 210, .35); }
-    50%      { box-shadow: 0 0 0 12px rgba(70, 190, 255, 0), 0 10px 26px rgba(0, 120, 210, .35); }
+  /* the red margin rule down the page */
+  #dive::before {
+    content: ""; position: absolute; top: 0; bottom: 0; left: 30px;
+    width: 1px; background: rgba(214, 96, 96, .5);
+    pointer-events: none;
   }
 
-  #stage.ocean #dive {
+  /* a strip of tape holding the page down */
+  #dive::after {
+    content: ""; position: absolute; top: -13px; left: 50%;
+    width: 96px; height: 26px;
+    transform: translateX(-50%) rotate(2.5deg);
+    background: linear-gradient(180deg, rgba(255, 252, 235, .9), rgba(242, 235, 210, .82));
+    border-left: 1px dashed rgba(120, 110, 80, .3);
+    border-right: 1px dashed rgba(120, 110, 80, .3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .3), inset 0 0 0 1px rgba(255, 255, 255, .3);
+    pointer-events: none;
+  }
+
+  .btn-text {
+    position: relative; z-index: 1;
+    text-decoration: underline wavy rgba(39, 69, 111, .38);
+    text-underline-offset: 7px; text-decoration-thickness: 1.5px;
+  }
+  .btn-fish {
+    position: relative; z-index: 1;
+    margin-left: .45em;
+    font-family: ui-monospace, "MS Gothic", monospace;
+    font-size: .58em; letter-spacing: 0;
+    opacity: .8; display: inline-block;
+    transform: translateY(-2px) rotate(-5deg);
+  }
+
+  #dive:hover {
+    transform: rotate(0deg) translateY(-3px) scale(1.03);
+    background-color: #fffdf2;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, .95) inset,
+      0 22px 40px rgba(0, 0, 0, .55),
+      0 3px 6px rgba(0, 0, 0, .45);
+  }
+  #dive:active {
+    transform: rotate(-1deg) translateY(1px) scale(.99);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, .8) inset,
+      0 8px 18px rgba(0, 0, 0, .5);
+  }
+  #dive:focus-visible { outline: 2px dashed #a8d8ff; outline-offset: 7px; }
+
+  #stage.ocean .scene {
     opacity: 0; pointer-events: none;
-    transform: translateY(14px) scale(.92);
-    animation: none;
+    transform: translateY(16px) scale(.94);
   }
 </style>
 </head>
@@ -119,47 +187,150 @@
   <div id="rays"></div>
   <div id="fishLayer" aria-hidden="true"></div>
   <div id="bubbles" aria-hidden="true"></div>
-  <button id="dive" type="button">go for a swim</button>
+  <div class="scene">
+    <p class="tagline">the water is warm</p>
+    <button id="dive" type="button">
+      <span class="btn-text">dive in</span>
+      <span class="btn-fish" aria-hidden="true">＞゜))))彡</span>
+    </button>
+  </div>
 </div>
 <script>
   const stage = document.getElementById('stage');
   const fishLayer = document.getElementById('fishLayer');
   const bubbleLayer = document.getElementById('bubbles');
 
-  const GLYPHS = ['\u{1319D}', '\u{1319F}', '\u{1319E}', '\u{1319F}', '\u{1319D}'];
-  const COLORS = ['#7fd7ff', '#9fe8ff', '#4fb8e8', '#b9f0ff', '#6cc7f2', '#d6f6ff'];
+  // every fish is a tiny kaomoji animation: two body frames (tail flicker / squish),
+  // a smooth swim with a stroke-pulse, a bob, a tilt, and bubble puffs from the mouth.
+  const FISH_FRAMES = {
+    right: [
+      ['><(((°>', '><(((゜>'],
+      ['彡(((°>', 'ミ(((°>'],
+      ['><((((°>', '><(((°>']
+    ],
+    left: [
+      ['<°)))彡', '<゜)))彡'],
+      ['<°)))彡', '<°)))ミ'],
+      ['<°))))彡', '<°)))彡']
+    ]
+  };
+  const COLORS = ['#8fdcff', '#b3ecff', '#5fc4f0', '#cbf4ff', '#74cff5', '#e0f8ff'];
 
   const rand = (min, max) => min + Math.random() * (max - min);
+  const pick = (list) => list[(Math.random() * list.length) | 0];
+
+  const fish = [];
+  let lastT = 0;
 
   function addFish(count) {
-    const bands = 9;                     // spread fish over the water instead of clumping
+    const W = stage.clientWidth, H = stage.clientHeight;
+
     for (let i = 0; i < count; i++) {
-      const goingLeft = Math.random() < 0.5;
-      const size = rand(20, 54);
-      const depth = size / 54;           // bigger fish read as closer
-      const dur = rand(11, 24) * (1.25 - depth * 0.5);
+      const dir = Math.random() < 0.5 ? 1 : -1;
+      const size = rand(15, 34);
+      const depth = (size - 15) / 19;              // bigger fish read as closer
+      const frames = pick(FISH_FRAMES[dir > 0 ? 'right' : 'left']);
 
-      const fish = document.createElement('div');
-      fish.className = 'fish ' + (goingLeft ? 'left' : 'right');
-      fish.style.setProperty('--y', (4 + (i % bands) * 9 + rand(-3, 3)).toFixed(1) + '%');
-      fish.style.setProperty('--size', size.toFixed(0) + 'px');
-      fish.style.setProperty('--c', COLORS[i % COLORS.length]);
-      fish.style.setProperty('--dur', dur.toFixed(1) + 's');
-      fish.style.setProperty('--bob', rand(2.4, 4.6).toFixed(1) + 's');
-      fish.style.setProperty('--delay', (-Math.random() * dur).toFixed(1) + 's');
-      fish.style.opacity = (0.35 + depth * 0.65).toFixed(2);
-
-      const bob = document.createElement('div');
-      bob.className = 'bob';
+      const el = document.createElement('div');
+      el.className = 'fish';
+      el.style.setProperty('--size', size.toFixed(0) + 'px');
+      el.style.setProperty('--c', COLORS[i % COLORS.length]);
+      el.style.opacity = (0.4 + depth * 0.6).toFixed(2);
 
       const glyph = document.createElement('span');
       glyph.className = 'glyph';
-      glyph.textContent = GLYPHS[i % GLYPHS.length];
+      glyph.textContent = frames[0];
+      el.appendChild(glyph);
+      fishLayer.appendChild(el);
 
-      bob.appendChild(glyph);
-      fish.appendChild(bob);
-      fishLayer.appendChild(fish);
+      fish.push({
+        el, glyph, frames,
+        dir,
+        size,
+        x: rand(-180, W),
+        baseY: 28 + ((i % 9) / 9) * (H - 90) + rand(-14, 14),
+        speed: rand(34, 62) * (0.65 + depth * 0.9),
+        phase: rand(0, Math.PI * 2),
+        bobAmp: rand(3, 9),
+        bobSpd: rand(0.9, 1.8),
+        frame: 0,
+        frameMs: rand(90, 200),
+        frameEvery: rand(115, 185),
+        puffMs: rand(900, 4000),
+        boost: 0
+      });
     }
+  }
+
+  function blow(f) {
+    const sr = stage.getBoundingClientRect();
+    const gr = f.glyph.getBoundingClientRect();
+    const mouthX = (f.dir > 0 ? gr.right + 2 : gr.left - 2) - sr.left;
+    const mouthY = gr.top - sr.top + gr.height * 0.5;
+    const count = 1 + ((Math.random() * 3) | 0);
+    const chars = ['°', 'o', 'O'];
+
+    for (let i = 0; i < count; i++) {
+      setTimeout(() => {
+        const puff = document.createElement('span');
+        puff.className = 'puff';
+        puff.textContent = chars[i % chars.length];
+        puff.style.setProperty('--size', (f.size * (0.45 + i * 0.14)).toFixed(1) + 'px');
+        puff.style.setProperty('--x', (mouthX + f.dir * i * 4).toFixed(1) + 'px');
+        puff.style.setProperty('--y', (mouthY - i * 3).toFixed(1) + 'px');
+        puff.style.setProperty('--dx', (-f.dir * rand(10, 34)).toFixed(0) + 'px');
+        puff.style.setProperty('--dur', rand(1.2, 2).toFixed(2) + 's');
+        puff.addEventListener('animationend', () => puff.remove());
+        bubbleLayer.appendChild(puff);
+      }, i * 240);
+    }
+  }
+
+  function swim(t) {
+    const dt = Math.min(50, t - lastT || 16);
+    lastT = t;
+    const W = stage.clientWidth, H = stage.clientHeight;
+
+    for (const f of fish) {
+      // stroke-pulse: water pushed on every tail beat
+      f.phase += dt * 0.001 * f.bobSpd;
+      const pulse = 0.62 + 0.38 * Math.sin(f.phase * 2.6);
+      f.boost = Math.max(0, f.boost - dt * 0.0011);
+      if (Math.random() < dt * 0.00006) f.boost = 1.6;   // occasional dart
+      f.x += f.dir * f.speed * (pulse + f.boost) * dt * 0.001;
+
+      const y = f.baseY + Math.sin(f.phase) * f.bobAmp;
+      const vy = Math.cos(f.phase) * f.bobAmp * f.bobSpd;
+      const tilt = Math.atan2(vy, f.speed) * 28;          // nose follows the arc
+
+      f.el.style.transform =
+        'translate3d(' + f.x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0) rotate(' + tilt.toFixed(2) + 'deg)';
+
+      // tail / body frame flip
+      f.frameMs -= dt;
+      if (f.frameMs <= 0) {
+        f.frame = (f.frame + 1) % f.frames.length;
+        f.glyph.textContent = f.frames[f.frame];
+        f.frameMs = f.frameEvery + rand(-25, 25);
+      }
+
+      // the blow-bubbles sequence: a small burst every few seconds
+      f.puffMs -= dt;
+      if (f.puffMs <= 0) {
+        if (f.x > -20 && f.x < W) blow(f);
+        f.puffMs = rand(3200, 6500);
+      }
+
+      // leave one edge, come back on the other
+      if ((f.dir > 0 && f.x > W + 200) || (f.dir < 0 && f.x < -200)) {
+        f.x = f.dir > 0 ? -200 : W + 200;
+        f.baseY = rand(24, H - 60);
+        f.phase = rand(0, Math.PI * 2);
+        f.puffMs = rand(700, 3200);
+      }
+    }
+
+    requestAnimationFrame(swim);
   }
 
   function addBubbles(count) {
@@ -178,7 +349,11 @@
   document.getElementById('dive').addEventListener('click', () => {
     stage.classList.add('ocean');
     // let the water settle for a moment before the fish swim in
-    setTimeout(() => { addFish(16); addBubbles(18); }, 650);
+    setTimeout(() => {
+      addFish(16);
+      addBubbles(18);
+      requestAnimationFrame(swim);
+    }, 650);
   }, { once: true });
 </script>
 </body>
